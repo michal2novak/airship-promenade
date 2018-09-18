@@ -8,9 +8,15 @@ if [ "x$ARMADA_CHART_PATH_OVERRIDE" != "x" ]; then
     EXTRA_ARGS=" -v $ARMADA_CHART_PATH_OVERRIDE:/etc/genesis/armada/assets/charts"
 fi
 
+if [ "$(pwd)" != '/' ]; then
+    VOLUMES="-v $(pwd):$(pwd):ro"
+else
+    VOLUMES=""
+fi
+
 exec docker run --rm -i \
     --net host \
-    -v /etc/genesis/armada-cli/auth:/armada/.kube \
+    $VOLUMES -v /etc/genesis/armada-cli/auth:/armada/.kube \
     -v /etc/genesis/armada/assets:/etc/genesis/armada/assets \
     $EXTRA_ARGS \
     {{ config['Genesis:images.armada'] }} \

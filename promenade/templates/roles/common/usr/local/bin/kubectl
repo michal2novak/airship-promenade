@@ -16,11 +16,17 @@ for item in "$@"; do
     fi
 done
 
+if [ "$(pwd)" != '/' ]; then
+    VOLUMES="-v $(pwd):$(pwd):ro"
+else
+    VOLUMES=""
+fi
+
 if [[ $TRANSLATE_CR == 1 ]]; then
     docker run --rm -i \
         $ADDITIONAL_DOCKER_ARGS \
         --net host \
-        -v /etc/kubernetes/admin:/etc/kubernetes/admin \
+        $VOLUMES -v /etc/kubernetes/admin:/etc/kubernetes/admin \
         -e KUBECONFIG=/etc/kubernetes/admin/kubeconfig.yaml \
         {{ config['HostSystem:images.kubernetes.kubectl'] }} \
             /kubectl \
@@ -30,7 +36,7 @@ else
     exec docker run --rm -i \
         $ADDITIONAL_DOCKER_ARGS \
         --net host \
-        -v /etc/kubernetes/admin:/etc/kubernetes/admin \
+        $VOLUMES -v /etc/kubernetes/admin:/etc/kubernetes/admin \
         -e KUBECONFIG=/etc/kubernetes/admin/kubeconfig.yaml \
         {{ config['HostSystem:images.kubernetes.kubectl'] }} \
             /kubectl \

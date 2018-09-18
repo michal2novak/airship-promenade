@@ -10,9 +10,15 @@ else
     WORKDIR=/up/$(basename $(pwd))
 fi
 
+VOLUMES="-v /root/.helm:/root.helm"
+if [ "$(pwd)" != '/' ]; then
+    VOLUMES="$VOLUMES -v $(pwd):$(pwd):ro"
+fi
+
 exec docker run --rm \
     --net host \
     -v $UPDIR:/up \
+    $VOLUMES \
     -v /etc/kubernetes/admin:/etc/kubernetes/admin \
     -w $WORKDIR \
     -e KUBECONFIG=/etc/kubernetes/admin/kubeconfig.yaml \
