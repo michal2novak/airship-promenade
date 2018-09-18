@@ -10,7 +10,7 @@ else
     WORKDIR=/up/$(basename $(pwd))
 fi
 
-VOLUMES="-v /root/.helm:/root.helm"
+VOLUMES="-v /root/.helm:/root/.helm"
 if [ "$(pwd)" != '/' ]; then
     VOLUMES="$VOLUMES -v $(pwd):$(pwd):ro"
 fi
