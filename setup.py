@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright 2017 The Promenade Authors.
+# Copyright 2017 AT&T Intellectual Property.  All other rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,15 +17,6 @@
 from setuptools import setup
 
 setup(
-    setup_requires=['setuptools>=17.1'],
-    name='promenade',
-    version='0.8.0',
-    packages=['promenade'],
-    package_data={
-        'schemas': 'schemas/*',
-        'templates': 'templates/*',
-    },
-    entry_points={
-        'console_scripts': 'promenade=promenade.cli:promenade',
-    },
+    setup_requires=['setuptools>=17.1', 'pbr>=2.0.0'],
+    pbr=True
 )

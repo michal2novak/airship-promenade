@@ -2,15 +2,29 @@
 #
 resolvconf --disable-updates
 
-mkdir -p /etc/kubernetes
-chmod 700 /etc/kubernetes
+CURATED_DIRS=(
+    /etc/kubernetes
+    /var/lib/etcd
+)
+
+for DIR in "${CURATED_DIRS[@]}"; do
+    mkdir -p "${DIR}"
+    chmod 700 "${DIR}"
+done
 
 # Unpack prepared files into place
 #
 set +x
 log
 log === Extracting prepared files ===
-echo "{{ tarball | b64enc }}" | base64 -d | tar -zxv -C / | tee /etc/promenade-manifest
+{{ decrypt_setup_command }}
+echo "{{ encrypted_tarball | b64enc }}" | base64 -d | {{ decrypt_command }} | tar -zxv -C / | tee /etc/promenade-manifest
+{{ decrypt_teardown_command }}
+set -x
+
+for DIR in "${CURATED_DIRS[@]}"; do
+    chmod -R go-rwx "${DIR}"
+done
 
 # Adding apt repositories
 #

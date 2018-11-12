@@ -22,8 +22,11 @@ metadata:
   labels:
     {{ .Values.service.name }}-service: enabled
 {{ tuple $envAll "kubernetes" "apiserver" | include "helm-toolkit.snippets.kubernetes_metadata_labels" | indent 4 }}
+  annotations:
+    {{ tuple $envAll | include "helm-toolkit.snippets.release_uuid" }}
 spec:
   hostNetwork: true
+  shareProcessNamespace: true
   containers:
     - name: apiserver
       image: {{ .Values.images.tags.apiserver }}
@@ -54,14 +57,15 @@ spec:
         - --tls-private-key-file=/etc/kubernetes/apiserver/pki/apiserver-key.pem
         - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
         - --kubelet-certificate-authority=/etc/kubernetes/apiserver/pki/cluster-ca.pem
-        - --kubelet-client-certificate=/etc/kubernetes/apiserver/pki/apiserver.pem
-        - --kubelet-client-key=/etc/kubernetes/apiserver/pki/apiserver-key.pem
+        - --kubelet-client-certificate=/etc/kubernetes/apiserver/pki/kubelet-client.pem
+        - --kubelet-client-key=/etc/kubernetes/apiserver/pki/kubelet-client-key.pem
         - --etcd-servers={{ .Values.apiserver.etcd.endpoints }}
         - --etcd-cafile=/etc/kubernetes/apiserver/pki/etcd-client-ca.pem
         - --etcd-certfile=/etc/kubernetes/apiserver/pki/etcd-client.pem
         - --etcd-keyfile=/etc/kubernetes/apiserver/pki/etcd-client-key.pem
         - --allow-privileged=true
         - --service-account-key-file=/etc/kubernetes/apiserver/pki/service-account.pub
+        - --admission-control-config-file=/etc/kubernetes/apiserver/acconfig.yaml
 
       ports:
         - containerPort: {{ .Values.network.kubernetes_apiserver.port }}

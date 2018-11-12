@@ -23,8 +23,10 @@ metadata:
   labels:
     {{ .Values.service.name }}: enabled
     kubernetes.io/name: "CoreDNS"
+  annotations:
+    {{ tuple $envAll | include "helm-toolkit.snippets.release_uuid" }}
 spec:
-  replicas: 2
+  replicas: {{ .Values.pod.replicas.coredns }}
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -42,6 +44,7 @@ spec:
         configmap-etc-hash: {{ tuple "configmap-etc.yaml" . | include "helm-toolkit.utils.hash" }}
     spec:
       serviceAccountName: coredns
+      shareProcessNamespace: true
       tolerations:
         - key: "CriticalAddonsOnly"
           operator: "Exists"

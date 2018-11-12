@@ -86,7 +86,7 @@ metadata:
     layer: site
   storagePolicy: cleartext
 data:
-  description: UCP platform components
+  description: Airship platform components
   sequenced: true
   chart_group:
     - promenade
@@ -163,7 +163,7 @@ data:
     type: git
     location: https://git.openstack.org/openstack/openstack-helm-infra
     subpath: helm-toolkit
-    reference: master
+    reference: 681dee71b7befd199509b17852b3385d359a15a5
   dependencies: []
 ---
 schema: armada/Chart/v1
@@ -542,7 +542,7 @@ data:
   source:
     type: git
     location: https://git.openstack.org/openstack/openstack-helm-infra
-    reference: master
+    reference: 681dee71b7befd199509b17852b3385d359a15a5
     subpath: calico
   dependencies:
     - infra-helm-toolkit
@@ -664,7 +664,6 @@ metadata:
         path: .
       dest:
         path: .values.secrets.tls.ca
-
     -
       src:
         schema: deckhand/Certificate/v1
@@ -679,6 +678,7 @@ metadata:
         path: .
       dest:
         path: .values.secrets.tls.key
+
     -
       src:
         schema: deckhand/CertificateAuthority/v1
@@ -721,9 +721,12 @@ data:
     command_prefix:
       - /apiserver
       - --authorization-mode=Node,RBAC
-      - --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,PersistentVolumeLabel,DefaultStorageClass,ResourceQuota,DefaultTolerationSeconds
+      - --enable-admission-plugins=NamespaceLifecycle,LimitRanger,ServiceAccount,PersistentVolumeLabel,DefaultStorageClass,ResourceQuota,DefaultTolerationSeconds,NodeRestriction,EventRateLimit
       - --service-cluster-ip-range=10.96.0.0/16
       - --endpoint-reconciler-type=lease
+      - --feature-gates=PodShareProcessNamespace=true
+      # NOTE(mark-burnett): This flag is removed in Kubernetes 1.11
+      - --repair-malformed-updates=false
     apiserver:
       etcd:
         endpoints: https://127.0.0.1:2378
@@ -731,18 +734,6 @@ data:
       tags:
         anchor: gcr.io/google_containers/hyperkube-amd64:v1.10.2
         apiserver: gcr.io/google_containers/hyperkube-amd64:v1.10.2
-    secrets:
-      service_account:
-        public_key: placeholder
-      tls:
-        ca: placeholder
-        cert: placeholder
-        key: placeholder
-      etcd:
-        tls:
-          ca: placeholder
-          cert: placeholder
-          key: placeholder
     network:
       kubernetes_service_ip: 10.96.0.1
       pod_cidr: 10.97.0.0/16

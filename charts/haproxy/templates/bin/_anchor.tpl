@@ -24,6 +24,7 @@ compare_copy_files() {
     if [ ! -e /host{{ .dest }} ] || ! cmp -s {{ .source }} /host{{ .dest }}; then
         mkdir -p $(dirname /host{{ .dest }})
         cp {{ .source }} /host{{ .dest }}
+        chmod go-rwx /host{{ .dest }}
     fi
     {{- end }}
 }
@@ -104,20 +105,30 @@ install_config() {
         else
             echo HAProxy config file unchanged.
         fi
+        chmod -R go-rwx $(dirname "$HAPROXY_CONF")
     fi
 }
 
 cleanup() {
+    cleanup_message_file=$(dirname "$HAPROXY_CONF")/cleanup
+    backup_dir=$(dirname "$HAPROXY_CONF")/backup
+    mkdir -p $backup_dir
+    echo "Starting haproxy-anchor cleanup, files are backed up:" > $cleanup_message_file
     {{- range .Values.conf.anchor.files_to_copy }}
-    rm -f /host{{ .dest }}
+    echo /host{{ .dest }} >> $cleanup_message_file
+    mv /host{{ .dest }} $backup_dir
     {{- end }}
-    rm -f "$HAPROXY_CONF" "$NEXT_HAPROXY_CONF"
+    echo "$HAPROXY_CONF" >> $cleanup_message_file
+    echo "$NEXT_HAPROXY_CONF" >> $cleanup_message_file
+    mv "$HAPROXY_CONF" "$NEXT_HAPROXY_CONF" $backup_dir
 }
 
 while true; do
     if [ -e /tmp/stop ]; then
         echo Stopping
+        {%- if .Values.conf.anchor.enable_cleanup %}
         cleanup
+        {%- end %}
         break
     fi
 

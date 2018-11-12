@@ -12,6 +12,7 @@ Details about Promenade-specific documents can be found here:
     :caption: Documents
 
     docker
+    encryption-policy
     genesis
     host-system
     kubelet
@@ -24,5 +25,5 @@ The provided Armada_ manifest and will be applied on the genesis node as soon
 as it is healthy.
 
 
-.. _Armada: https://github.com/att-comdev/armada
-.. _Deckhand: https://github.com/att-comdev/deckhand
+.. _Armada: https://github.com/openstack/airship-armada
+.. _Deckhand: https://github.com/openstack/airship-deckhand

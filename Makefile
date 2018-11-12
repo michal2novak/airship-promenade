@@ -22,7 +22,9 @@ PROXY             ?= http://proxy.foo.com:8000
 NO_PROXY          ?= localhost,127.0.0.1,.svc.cluster.local
 USE_PROXY         ?= false
 PUSH_IMAGE        ?= false
-LABEL             ?= commit-id
+# use this variable for image labels added in internal build process
+LABEL             ?= org.airshipit.build=community
+COMMIT            ?= $(shell git rev-parse HEAD)
 PYTHON            = python3
 CHARTS            := $(patsubst charts/%/.,%,$(wildcard charts/*/.))
 IMAGE             := ${DOCKER_REGISTRY}/${IMAGE_PREFIX}/${IMAGE_NAME}:${IMAGE_TAG}
@@ -36,7 +38,7 @@ CHARTS := $(patsubst charts/%/.,%,$(wildcard charts/*/.))
 all: charts lint
 
 .PHONY: tests
-tests: gate-lint
+tests: external-deps gate-lint
 	tox
 
 .PHONY: tests-security
@@ -48,8 +50,12 @@ docs:
 	tox -e docs
 
 .PHONY: tests-unit
-tests-unit:
+tests-unit: external-deps
 	tox -e py35
+
+.PHONY: external-deps
+external-deps:
+	./tools/install-external-deps.sh
 
 .PHONY: tests-pep8
 tests-pep8:
@@ -114,7 +120,11 @@ $(CHARTS): $(addprefix dry-run-,$(CHARTS)) chartbanner
 .PHONY: build_promenade
 build_promenade:
 ifeq ($(USE_PROXY), true)
-	docker build --network host -t $(IMAGE) --label $(LABEL) -f ./Dockerfile \
+	docker build --network host -t $(IMAGE) --label $(LABEL) \
+		--label "org.opencontainers.image.revision=$(COMMIT)" \
+		--label "org.opencontainers.image.created=$(shell date --rfc-3339=seconds --utc)" \
+		--label "org.opencontainers.image.title=$(IMAGE_NAME)" \
+		-f ./Dockerfile \
 		--build-arg FROM=$(PYTHON_BASE_IMAGE) \
 		--build-arg http_proxy=$(PROXY) \
 		--build-arg https_proxy=$(PROXY) \
@@ -123,7 +133,11 @@ ifeq ($(USE_PROXY), true)
 		--build-arg no_proxy=$(NO_PROXY) \
 		--build-arg NO_PROXY=$(NO_PROXY) .
 else
-	docker build --network host -t $(IMAGE) --label $(LABEL) -f ./Dockerfile \
+	docker build --network host -t $(IMAGE) --label $(LABEL) \
+		--label "org.opencontainers.image.revision=$(COMMIT)" \
+		--label "org.opencontainers.image.created=$(shell date --rfc-3339=seconds --utc)" \
+		--label "org.opencontainers.image.title=$(IMAGE_NAME)" \
+		-f ./Dockerfile \
 		--build-arg FROM=$(PYTHON_BASE_IMAGE) .
 endif
 ifeq ($(PUSH_IMAGE), true)

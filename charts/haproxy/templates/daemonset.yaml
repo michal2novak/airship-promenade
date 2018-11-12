@@ -20,12 +20,16 @@ apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:
   name: haproxy-anchor
+  annotations:
+    {{ tuple $envAll | include "helm-toolkit.snippets.release_uuid" }}
 spec:
 {{ tuple $envAll "haproxy_anchor" | include "helm-toolkit.snippets.kubernetes_upgrades_daemonset" | indent 2 }}
   template:
     metadata:
       labels:
 {{ tuple $envAll "kubernetes" "haproxy-anchor" | include "helm-toolkit.snippets.kubernetes_metadata_labels" | indent 8 }}
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ''
     spec:
       tolerations:
         - key: node-role.kubernetes.io/master
