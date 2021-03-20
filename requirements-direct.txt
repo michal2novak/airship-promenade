@@ -1,7 +1,7 @@
 beaker==1.9.1
 click==6.7
 falcon==1.2.0
-jinja2==2.9.6
+jinja2==2.11.3
 jsonpath-ng==1.4.3
 jsonschema==2.6.0
 keystoneauth1==3.2.0
