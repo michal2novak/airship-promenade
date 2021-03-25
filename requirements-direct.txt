@@ -11,7 +11,7 @@ oslo.context==2.19.2
 oslo.policy==1.22.1
 pastedeploy==1.5.2
 pbr==3.0.1
-pyyaml==3.12
+pyyaml==5.4
 requests==2.18.4
 uwsgi==2.0.15
 git+https://git.openstack.org/openstack/airship-deckhand@7d697012fcbd868b14670aa9cf895acfad5a7f8d
