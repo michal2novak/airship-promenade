@@ -42,7 +42,7 @@ keystonemiddleware==4.17.0
 kombu==4.2.1
 kubernetes==3.0.0
 linecache2==1.0.0
-Mako==1.0.7
+Mako==1.2.2
 MarkupSafe==1.0
 mccabe==0.5.3
 monotonic==1.5
